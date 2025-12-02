@@ -121,8 +121,6 @@ export default function Home() {
         venomLevel={venomLevel} 
         onSnakeNameChange={handleSnakeNameChange} 
         snakeName={snakeName}
-        messageCount={messages.length}
-        totalVenomExpelled={totalVenomExpelled}
       />
 
       {/* Background Layer */}
@@ -193,7 +191,7 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Main Chat Interface */}
-      <main className={`relative z-10 flex flex-col h-screen max-w-4xl mx-auto p-4 pt-24 transition-all duration-300 ${venomLevel > 50 ? 'animate-[glitch_0.2s_infinite]' : ''}`}>
+      <main className={`relative z-10 flex flex-col h-screen max-w-4xl mx-auto p-4 pt-20 transition-all duration-300 ${venomLevel > 50 ? 'animate-[glitch_0.2s_infinite]' : ''}`}>
 
         {/* Chat Status Bar */}
         <div className={`py-3 border-b mb-4 flex justify-between items-center backdrop-blur-md rounded-xl px-6 transition-all duration-300 ${
