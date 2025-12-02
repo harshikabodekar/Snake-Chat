@@ -55,30 +55,16 @@ export default function VenomMeter({
     style={{ height }}>
       
       {/* Skull warning at top for high levels */}
-      {showWarnings && level > 75 && (
+      {level > 75 && (
         <motion.div 
-          className="absolute -top-10 left-1/2 -translate-x-1/2 text-toxin-red text-2xl"
+          className="absolute -top-8 left-1/2 -translate-x-1/2 text-toxin-red text-xl"
           animate={{ 
-            scale: [0.8, 1.3, 0.8],
-            rotate: [0, 15, -15, 0] 
+            scale: [0.8, 1.2, 0.8],
+            rotate: [0, 10, -10, 0] 
           }}
           transition={{ duration: 1, repeat: Infinity }}
         >
           💀
-        </motion.div>
-      )}
-      
-      {/* Enhanced danger indicators */}
-      {showWarnings && level > 90 && (
-        <motion.div 
-          className="absolute -top-16 left-1/2 -translate-x-1/2 text-toxin-red text-xs font-bold tracking-wider"
-          animate={{ 
-            opacity: [0.5, 1, 0.5],
-            scale: [0.9, 1.1, 0.9]
-          }}
-          transition={{ duration: 0.8, repeat: Infinity }}
-        >
-          ⚠️ LETHAL ⚠️
         </motion.div>
       )}
 
@@ -147,53 +133,24 @@ export default function VenomMeter({
       </div>
 
       {/* Level percentage display */}
-      {showPercentage && (
-        <div className={`absolute ${position === 'left' ? '-right-14' : '-left-14'} top-3 text-sm font-mono font-bold ${
-          level > 80 ? 'text-toxin-red' :
-          level > 60 ? 'text-death-yellow' :
-          level > 40 ? 'text-poison-purple' :
-          'text-venom-green'
-        }`}>
-          {level}%
-        </div>
-      )}
-      
-      {/* Enhanced status indicator */}
-      {showPercentage && (
-        <div className={`absolute ${position === 'left' ? '-right-20' : '-left-20'} top-8 text-xs font-mono ${
-          level > 80 ? 'text-toxin-red' :
-          level > 60 ? 'text-death-yellow' :
-          level > 40 ? 'text-poison-purple' :
-          'text-venom-green/70'
-        }`}>
-          {level > 95 ? 'LETHAL' :
-           level > 80 ? 'CRITICAL' :
-           level > 60 ? 'DANGEROUS' :
-           level > 40 ? 'MODERATE' :
-           level > 20 ? 'LOW' : 'SAFE'}
-        </div>
-      )}
+      <div className="absolute -left-12 top-2 text-xs font-mono text-venom-green">
+        {level}%
+      </div>
       
       {/* Warning labels */}
-      {showLabels && level > 80 && (
+      {level > 80 && (
         <motion.div 
-          className={`absolute ${position === 'left' ? '-right-20' : '-left-20'} top-12 text-xs font-bold text-toxin-red`}
+          className="absolute -left-16 top-8 text-xs font-bold text-toxin-red"
           animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 0.5, repeat: Infinity }}
         >
-          ⚠️ FATAL
+          FATAL
         </motion.div>
       )}
       
-      {showLabels && level > 60 && level <= 80 && (
-        <div className={`absolute ${position === 'left' ? '-right-24' : '-left-24'} top-12 text-xs font-bold text-death-yellow`}>
-          ⚡ DANGER
-        </div>
-      )}
-      
-      {showLabels && level > 40 && level <= 60 && (
-        <div className={`absolute ${position === 'left' ? '-right-28' : '-left-28'} top-12 text-xs font-bold text-poison-purple`}>
-          ☣️ TOXIC
+      {level > 60 && level <= 80 && (
+        <div className="absolute -left-20 top-8 text-xs font-bold text-death-yellow">
+          DANGER
         </div>
       )}
     </div>

@@ -147,53 +147,24 @@ export default function VenomMeter({
       </div>
 
       {/* Level percentage display */}
-      {showPercentage && (
-        <div className={`absolute ${position === 'left' ? '-right-14' : '-left-14'} top-3 text-sm font-mono font-bold ${
-          level > 80 ? 'text-toxin-red' :
-          level > 60 ? 'text-death-yellow' :
-          level > 40 ? 'text-poison-purple' :
-          'text-venom-green'
-        }`}>
-          {level}%
-        </div>
-      )}
-      
-      {/* Enhanced status indicator */}
-      {showPercentage && (
-        <div className={`absolute ${position === 'left' ? '-right-20' : '-left-20'} top-8 text-xs font-mono ${
-          level > 80 ? 'text-toxin-red' :
-          level > 60 ? 'text-death-yellow' :
-          level > 40 ? 'text-poison-purple' :
-          'text-venom-green/70'
-        }`}>
-          {level > 95 ? 'LETHAL' :
-           level > 80 ? 'CRITICAL' :
-           level > 60 ? 'DANGEROUS' :
-           level > 40 ? 'MODERATE' :
-           level > 20 ? 'LOW' : 'SAFE'}
-        </div>
-      )}
+      <div className="absolute -left-12 top-2 text-xs font-mono text-venom-green">
+        {level}%
+      </div>
       
       {/* Warning labels */}
-      {showLabels && level > 80 && (
+      {level > 80 && (
         <motion.div 
-          className={`absolute ${position === 'left' ? '-right-20' : '-left-20'} top-12 text-xs font-bold text-toxin-red`}
+          className="absolute -left-16 top-8 text-xs font-bold text-toxin-red"
           animate={{ opacity: [0.7, 1, 0.7] }}
           transition={{ duration: 0.5, repeat: Infinity }}
         >
-          ⚠️ FATAL
+          FATAL
         </motion.div>
       )}
       
-      {showLabels && level > 60 && level <= 80 && (
-        <div className={`absolute ${position === 'left' ? '-right-24' : '-left-24'} top-12 text-xs font-bold text-death-yellow`}>
-          ⚡ DANGER
-        </div>
-      )}
-      
-      {showLabels && level > 40 && level <= 60 && (
-        <div className={`absolute ${position === 'left' ? '-right-28' : '-left-28'} top-12 text-xs font-bold text-poison-purple`}>
-          ☣️ TOXIC
+      {level > 60 && level <= 80 && (
+        <div className="absolute -left-20 top-8 text-xs font-bold text-death-yellow">
+          DANGER
         </div>
       )}
     </div>

@@ -206,7 +206,7 @@ export default function Home() {
       <main className={`relative z-10 flex flex-col h-screen max-w-4xl mx-auto p-4 pt-24 transition-all duration-300 ${venomLevel > 50 ? 'animate-[glitch_0.2s_infinite]' : ''}`}>
 
         {/* Chat Status Bar */}
-        <div className={`py-6 border-b mb-6 flex justify-between items-center backdrop-blur-lg rounded-2xl px-10 transition-all duration-300 shadow-2xl ${
+        <div className={`py-3 border-b mb-4 flex justify-between items-center backdrop-blur-md rounded-xl px-6 transition-all duration-300 ${
           venomLevel > 80 ? 'bg-toxin-red/10 border-toxin-red/30' :
           venomLevel > 60 ? 'bg-death-yellow/10 border-death-yellow/30' :
           venomLevel > 40 ? 'bg-poison-purple/10 border-poison-purple/30' :
@@ -215,16 +215,16 @@ export default function Home() {
           <div className="flex items-center space-x-3">
             <motion.div
               animate={{ 
-                scale: venomLevel > 70 ? [1, 1.3, 1] : [1, 1.1, 1],
-                rotate: [0, 8, -8, 0] 
+                scale: venomLevel > 70 ? [1, 1.2, 1] : 1,
+                rotate: [0, 5, -5, 0] 
               }}
-              transition={{ duration: 1.2, repeat: Infinity }}
-              className="text-4xl"
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="text-xl"
             >
               🗨️
             </motion.div>
             <div>
-              <div className={`font-bold text-2xl tracking-wide ${
+              <div className={`font-bold text-sm ${
                 venomLevel > 80 ? 'text-toxin-red' :
                 venomLevel > 60 ? 'text-death-yellow' :
                 venomLevel > 40 ? 'text-poison-purple' :
@@ -232,21 +232,20 @@ export default function Home() {
               }`}>
                 {snakeName ? `${snakeName}'s Den` : 'Venom Chamber'}
               </div>
-              <div className="text-lg opacity-70 font-mono mt-1">
+              <div className="text-xs opacity-60 font-mono">
                 {messages.length} message{messages.length !== 1 ? 's' : ''} exchanged
               </div>
             </div>
           </div>
           
-          <div className={`text-xl font-mono font-bold flex items-center space-x-6 ${
-            venomLevel > 80 ? 'text-toxin-red animate-pulse' :
+          <div className={`text-xs font-mono flex items-center space-x-4 ${
+            venomLevel > 80 ? 'text-toxin-red font-bold animate-pulse' :
             venomLevel > 60 ? 'text-death-yellow' :
             venomLevel > 40 ? 'text-poison-purple' :
-            'text-venom-green/80'
+            'text-venom-green/60'
           }`}>
-            <span className="tracking-wider">TOXICITY: {venomLevel}%</span>
-            {venomLevel > 75 && <span className="animate-bounce text-2xl">💀</span>}
-            {venomLevel > 90 && <span className="animate-pulse text-red-500 text-lg">⚠️</span>}
+            <span>TOXICITY: {venomLevel}%</span>
+            {venomLevel > 75 && <span className="animate-bounce">💀</span>}
           </div>
         </div>
 
