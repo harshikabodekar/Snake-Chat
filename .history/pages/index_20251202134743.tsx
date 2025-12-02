@@ -38,20 +38,6 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load snake name from localStorage
-  useEffect(() => {
-    const savedName = localStorage.getItem('snakeName');
-    if (savedName) {
-      setSnakeName(savedName);
-    }
-  }, []);
-
-  // Save snake name to localStorage
-  const handleSnakeNameChange = (name: string) => {
-    setSnakeName(name);
-    localStorage.setItem('snakeName', name);
-  };
-
   const handleSendMessage = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputValue.trim()) return;
@@ -90,7 +76,7 @@ export default function Home() {
     setTimeout(() => {
         setMessages(prev => [...prev, {
             id: Date.now(),
-            text: `⚠️ ${snakeName ? snakeName.toUpperCase() : 'VENOM'} OVERLOAD... SYSTEM RESET ⚠️`,
+            text: "⚠️ VENOM EXPELLED... SYSTEM RESET ⚠️",
             isUser: false
         }]);
     }, 600);
@@ -108,7 +94,7 @@ export default function Home() {
       {/* Venom Navbar */}
       <VenomNavbar 
         venomLevel={venomLevel} 
-        onSnakeNameChange={handleSnakeNameChange} 
+        onSnakeNameChange={setSnakeName} 
         snakeName={snakeName}
       />
 
@@ -180,51 +166,35 @@ export default function Home() {
       </AnimatePresence>
 
       {/* Main Chat Interface */}
-      <main className={`relative z-10 flex flex-col h-screen max-w-4xl mx-auto p-4 pt-20 transition-all duration-300 ${venomLevel > 50 ? 'animate-[glitch_0.2s_infinite]' : ''}`}>
+      <main className={`relative z-10 flex flex-col h-screen max-w-4xl mx-auto p-4 transition-all duration-300 ${venomLevel > 50 ? 'animate-[glitch_0.2s_infinite]' : ''}`}>
 
-        {/* Chat Status Bar */}
-        <div className={`py-3 border-b mb-4 flex justify-between items-center backdrop-blur-md rounded-xl px-6 transition-all duration-300 ${
-          venomLevel > 80 ? 'bg-toxin-red/10 border-toxin-red/30' :
+        {/* Header */}
+        <header className={`py-4 border-b mb-4 flex justify-between items-center backdrop-blur-md rounded-xl px-6 transition-all duration-300 ${
+          venomLevel > 80 ? 'bg-toxin-red/10 border-toxin-red/30 animate-pulse-danger' :
           venomLevel > 60 ? 'bg-death-yellow/10 border-death-yellow/30' :
           venomLevel > 40 ? 'bg-poison-purple/10 border-poison-purple/30' :
           'bg-black/40 border-venom-green/20'
         }`}>
-          <div className="flex items-center space-x-3">
-            <motion.div
-              animate={{ 
-                scale: venomLevel > 70 ? [1, 1.2, 1] : 1,
-                rotate: [0, 5, -5, 0] 
-              }}
-              transition={{ duration: 1.5, repeat: Infinity }}
-              className="text-xl"
-            >
-              🗨️
-            </motion.div>
-            <div>
-              <div className={`font-bold text-sm ${
-                venomLevel > 80 ? 'text-toxin-red' :
-                venomLevel > 60 ? 'text-death-yellow' :
-                venomLevel > 40 ? 'text-poison-purple' :
-                'text-venom-green'
-              }`}>
-                {snakeName ? `${snakeName}'s Den` : 'Venom Chamber'}
-              </div>
-              <div className="text-xs opacity-60 font-mono">
-                {messages.length} message{messages.length !== 1 ? 's' : ''} exchanged
-              </div>
-            </div>
-          </div>
-          
-          <div className={`text-xs font-mono flex items-center space-x-4 ${
+          <h1 className={`text-2xl font-bold transition-all duration-300 ${
+            venomLevel > 80 ? 'text-toxin-red animate-flicker' :
+            venomLevel > 60 ? 'text-death-yellow' :
+            venomLevel > 40 ? 'text-poison-purple' :
+            'text-venom-green'
+          }`} style={{
+            filter: venomLevel > 60 ? 'blur(0.3px)' : 'none',
+            textShadow: venomLevel > 80 ? '0 0 15px #ff1439' : '0 0 10px rgba(57,255,20,0.5)'
+          }}>
+            🐍 SNAKE CHAT <span className="text-xs opacity-70">v.VENOM</span>
+          </h1>
+          <div className={`text-xs font-mono ${
             venomLevel > 80 ? 'text-toxin-red font-bold animate-pulse' :
             venomLevel > 60 ? 'text-death-yellow' :
             venomLevel > 40 ? 'text-poison-purple' :
             'text-venom-green/60'
           }`}>
-            <span>TOXICITY: {venomLevel}%</span>
-            {venomLevel > 75 && <span className="animate-bounce">💀</span>}
+            TOXICITY: {venomLevel}% {venomLevel > 75 && '💀'}
           </div>
-        </div>
+        </header>
 
         {/* Message List */}
         <div className="flex-1 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-venom-green scrollbar-track-black/20">

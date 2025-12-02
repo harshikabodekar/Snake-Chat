@@ -38,20 +38,6 @@ export default function Home() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Load snake name from localStorage
-  useEffect(() => {
-    const savedName = localStorage.getItem('snakeName');
-    if (savedName) {
-      setSnakeName(savedName);
-    }
-  }, []);
-
-  // Save snake name to localStorage
-  const handleSnakeNameChange = (name: string) => {
-    setSnakeName(name);
-    localStorage.setItem('snakeName', name);
-  };
-
   const handleSendMessage = (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     if (!inputValue.trim()) return;
@@ -90,7 +76,7 @@ export default function Home() {
     setTimeout(() => {
         setMessages(prev => [...prev, {
             id: Date.now(),
-            text: `⚠️ ${snakeName ? snakeName.toUpperCase() : 'VENOM'} OVERLOAD... SYSTEM RESET ⚠️`,
+            text: "⚠️ VENOM EXPELLED... SYSTEM RESET ⚠️",
             isUser: false
         }]);
     }, 600);
@@ -108,7 +94,7 @@ export default function Home() {
       {/* Venom Navbar */}
       <VenomNavbar 
         venomLevel={venomLevel} 
-        onSnakeNameChange={handleSnakeNameChange} 
+        onSnakeNameChange={setSnakeName} 
         snakeName={snakeName}
       />
 

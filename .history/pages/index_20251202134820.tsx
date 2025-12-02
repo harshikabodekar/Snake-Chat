@@ -90,7 +90,7 @@ export default function Home() {
     setTimeout(() => {
         setMessages(prev => [...prev, {
             id: Date.now(),
-            text: `⚠️ ${snakeName ? snakeName.toUpperCase() : 'VENOM'} OVERLOAD... SYSTEM RESET ⚠️`,
+            text: "⚠️ VENOM EXPELLED... SYSTEM RESET ⚠️",
             isUser: false
         }]);
     }, 600);
