@@ -1,21 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from '@/components/MessageBubble';
 import VenomMeter from '@/components/VenomMeter';
 import SnakeCursor from '@/components/SnakeCursor';
 import BackgroundWebGL from '@/components/BackgroundWebGL';
+import ToxinParticles from '@/components/ToxinParticles';
 import DangerZone from '@/components/DangerZone';
+import AudioFeedback from '@/components/AudioFeedback';
 import { mutateText } from '@/utils/mutateText';
-
-// Dynamic imports for client-side only components
-const ToxinParticles = dynamic(() => import('@/components/ToxinParticles'), { 
-  ssr: false 
-});
-const AudioFeedback = dynamic(() => import('@/components/AudioFeedback'), { 
-  ssr: false 
-});
 
 interface Message {
   id: number;
@@ -99,59 +92,17 @@ export default function Home() {
       <DangerZone venomLevel={venomLevel} />
       <AudioFeedback venomLevel={venomLevel} onVenomIncrease={venomIncreased} />
 
-      {/* Venom Explosion Overlay */}
+      {/* Giant Snake Flash Overlay */}
       <AnimatePresence>
         {showFlash && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle, #ff1439 0%, #39ff14 30%, #000000 70%)',
-              mixBlendMode: 'hard-light'
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-venom-green mix-blend-hard-light pointer-events-none"
           >
-            <motion.div
-              className="text-[25rem] opacity-70 font-black tracking-tighter text-white select-none"
-              animate={{
-                scale: [1, 1.2, 0.8, 1],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{ duration: 0.5 }}
-              style={{
-                textShadow: '0 0 50px #ff1439, 0 0 100px #39ff14',
-                filter: 'blur(2px)'
-              }}
-            >
-              💀🐍💀
-            </motion.div>
-            
-            {/* Explosion particles */}
-            {[...Array(20)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-4 h-4 bg-toxin-red rounded-full"
-                initial={{
-                  x: 0,
-                  y: 0,
-                  scale: 0,
-                }}
-                animate={{
-                  x: (Math.random() - 0.5) * 800,
-                  y: (Math.random() - 0.5) * 600,
-                  scale: [0, 1, 0],
-                  rotate: Math.random() * 360,
-                }}
-                transition={{
-                  duration: 0.8,
-                  ease: "easeOut"
-                }}
-                style={{
-                  filter: 'drop-shadow(0 0 10px #ff1439)'
-                }}
-              />
-            ))}
+             <div className="text-[20rem] opacity-50 font-black tracking-tighter">SSSS</div>
+             <img src="https://em-content.zobj.net/source/microsoft-teams/337/snake_1f40d.png" alt="snake" className="absolute w-1/2 opacity-50 animate-pulse" style={{ filter: 'brightness(0) invert(1)' }}/>
           </motion.div>
         )}
       </AnimatePresence>

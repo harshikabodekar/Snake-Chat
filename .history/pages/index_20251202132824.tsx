@@ -1,21 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from '@/components/MessageBubble';
 import VenomMeter from '@/components/VenomMeter';
 import SnakeCursor from '@/components/SnakeCursor';
 import BackgroundWebGL from '@/components/BackgroundWebGL';
+import ToxinParticles from '@/components/ToxinParticles';
 import DangerZone from '@/components/DangerZone';
+import AudioFeedback from '@/components/AudioFeedback';
 import { mutateText } from '@/utils/mutateText';
-
-// Dynamic imports for client-side only components
-const ToxinParticles = dynamic(() => import('@/components/ToxinParticles'), { 
-  ssr: false 
-});
-const AudioFeedback = dynamic(() => import('@/components/AudioFeedback'), { 
-  ssr: false 
-});
 
 interface Message {
   id: number;
@@ -99,59 +92,17 @@ export default function Home() {
       <DangerZone venomLevel={venomLevel} />
       <AudioFeedback venomLevel={venomLevel} onVenomIncrease={venomIncreased} />
 
-      {/* Venom Explosion Overlay */}
+      {/* Giant Snake Flash Overlay */}
       <AnimatePresence>
         {showFlash && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.5 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle, #ff1439 0%, #39ff14 30%, #000000 70%)',
-              mixBlendMode: 'hard-light'
-            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-venom-green mix-blend-hard-light pointer-events-none"
           >
-            <motion.div
-              className="text-[25rem] opacity-70 font-black tracking-tighter text-white select-none"
-              animate={{
-                scale: [1, 1.2, 0.8, 1],
-                rotate: [0, 5, -5, 0],
-              }}
-              transition={{ duration: 0.5 }}
-              style={{
-                textShadow: '0 0 50px #ff1439, 0 0 100px #39ff14',
-                filter: 'blur(2px)'
-              }}
-            >
-              💀🐍💀
-            </motion.div>
-            
-            {/* Explosion particles */}
-            {[...Array(20)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute w-4 h-4 bg-toxin-red rounded-full"
-                initial={{
-                  x: 0,
-                  y: 0,
-                  scale: 0,
-                }}
-                animate={{
-                  x: (Math.random() - 0.5) * 800,
-                  y: (Math.random() - 0.5) * 600,
-                  scale: [0, 1, 0],
-                  rotate: Math.random() * 360,
-                }}
-                transition={{
-                  duration: 0.8,
-                  ease: "easeOut"
-                }}
-                style={{
-                  filter: 'drop-shadow(0 0 10px #ff1439)'
-                }}
-              />
-            ))}
+             <div className="text-[20rem] opacity-50 font-black tracking-tighter">SSSS</div>
+             <img src="https://em-content.zobj.net/source/microsoft-teams/337/snake_1f40d.png" alt="snake" className="absolute w-1/2 opacity-50 animate-pulse" style={{ filter: 'brightness(0) invert(1)' }}/>
           </motion.div>
         )}
       </AnimatePresence>
@@ -199,66 +150,37 @@ export default function Home() {
 
         {/* Input Area */}
         <form onSubmit={handleSendMessage} className="mt-4 relative group">
-          <div className={`absolute -inset-1 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 ${
-            venomLevel > 80 ? 'bg-gradient-to-r from-toxin-red to-poison-purple animate-pulse-danger' :
-            venomLevel > 60 ? 'bg-gradient-to-r from-death-yellow to-toxin-red animate-pulse' :
-            venomLevel > 40 ? 'bg-gradient-to-r from-poison-purple to-venom-green animate-pulse' :
-            'bg-gradient-to-r from-venom-green to-blue-600'
-          } ${venomLevel > 0 ? 'animate-pulse' : ''}`}></div>
+          <div className={`absolute -inset-1 bg-gradient-to-r from-venom-green to-blue-600 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 ${venomLevel > 0 ? 'animate-pulse' : ''}`}></div>
           <input
             type="text"
             value={inputValue}
             onChange={(e) => setInputValue(e.target.value)}
-            placeholder={
-              venomLevel > 80 ? "⚠️ LETHAL DOSE..." :
-              venomLevel > 60 ? "Inject toxins..." :
-              venomLevel > 40 ? "Drip poison..." :
-              "Type your venom here..."
-            }
-            className={`relative w-full bg-black rounded-lg px-4 py-3 text-white focus:outline-none transition-all ${
-              venomLevel > 80 ? 'border-2 border-toxin-red placeholder-red-400 focus:ring-2 focus:ring-toxin-red/50 animate-danger-glow' :
-              venomLevel > 60 ? 'border-2 border-death-yellow placeholder-yellow-400 focus:ring-2 focus:ring-death-yellow/50' :
-              venomLevel > 40 ? 'border-2 border-poison-purple placeholder-purple-400 focus:ring-2 focus:ring-poison-purple/50' :
-              'border border-venom-green/40 placeholder-gray-500 focus:ring-2 focus:ring-venom-green/50 focus:border-transparent'
-            }`}
+            placeholder="Type your venom here..."
+            className="relative w-full bg-black border border-venom-green/40 rounded-lg px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-venom-green/50 focus:border-transparent transition-all"
             style={{
-              transform: inputValue.length > 0 && venomLevel > 50 ? `rotate(${Math.sin(Date.now() * 0.01) * 0.5}deg)` : 'none',
-              filter: venomLevel > 70 ? 'blur(0.2px)' : 'none'
+                transform: inputValue.length > 0 ? `rotate(${Math.sin(Date.now())}deg)` : 'none'
             }}
           />
           {inputValue.length > 0 && (
              <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                 {[...Array(venomLevel > 60 ? 5 : 3)].map((_, i) => (
+                 {[...Array(3)].map((_, i) => (
                     <motion.span
                         key={i}
-                        className={`absolute text-xs font-bold ${
-                          venomLevel > 80 ? 'text-toxin-red' :
-                          venomLevel > 60 ? 'text-death-yellow' :
-                          venomLevel > 40 ? 'text-poison-purple' :
-                          'text-venom-green'
-                        }`}
+                        className="absolute text-venom-green text-xs font-bold"
                         initial={{ opacity: 0, x: 0, y: 0 }}
                         animate={{
                             opacity: [0, 1, 0],
-                            x: [0, (Math.random() - 0.5) * (venomLevel > 70 ? 50 : 30)],
-                            y: [0, (Math.random() - 0.5) * (venomLevel > 70 ? 50 : 30)],
-                            rotate: [0, (Math.random() - 0.5) * (venomLevel > 70 ? 120 : 60)]
+                            x: [0, (Math.random() - 0.5) * 30],
+                            y: [0, (Math.random() - 0.5) * 30],
+                            rotate: [0, (Math.random() - 0.5) * 60]
                         }}
                         transition={{
                             repeat: Infinity,
-                            duration: venomLevel > 70 ? 0.3 : 0.5 + Math.random() * 0.5,
+                            duration: 0.5 + Math.random() * 0.5,
                             delay: i * 0.1
                         }}
-                        style={{
-                          filter: `drop-shadow(0 0 3px ${
-                            venomLevel > 80 ? '#ff1439' :
-                            venomLevel > 60 ? '#ffff14' :
-                            venomLevel > 40 ? '#8b14ff' :
-                            '#39ff14'
-                          })`
-                        }}
                     >
-                        {venomLevel > 80 ? '💀' : venomLevel > 60 ? '⚠️' : 'sss'}
+                        sss
                     </motion.span>
                  ))}
              </div>

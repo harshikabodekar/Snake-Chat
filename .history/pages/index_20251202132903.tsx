@@ -1,21 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Head from 'next/head';
-import dynamic from 'next/dynamic';
 import { motion, AnimatePresence } from 'framer-motion';
 import MessageBubble from '@/components/MessageBubble';
 import VenomMeter from '@/components/VenomMeter';
 import SnakeCursor from '@/components/SnakeCursor';
 import BackgroundWebGL from '@/components/BackgroundWebGL';
+import ToxinParticles from '@/components/ToxinParticles';
 import DangerZone from '@/components/DangerZone';
+import AudioFeedback from '@/components/AudioFeedback';
 import { mutateText } from '@/utils/mutateText';
-
-// Dynamic imports for client-side only components
-const ToxinParticles = dynamic(() => import('@/components/ToxinParticles'), { 
-  ssr: false 
-});
-const AudioFeedback = dynamic(() => import('@/components/AudioFeedback'), { 
-  ssr: false 
-});
 
 interface Message {
   id: number;
