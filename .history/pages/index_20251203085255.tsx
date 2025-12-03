@@ -8,7 +8,6 @@ import SnakeCursor from '@/components/SnakeCursor';
 import BackgroundWebGL from '@/components/BackgroundWebGL';
 import DangerZone from '@/components/DangerZone';
 import VenomNavbar from '@/components/VenomNavbar';
-import VenomPopup, { checkThresholdCrossed, getVenomMessage } from '@/components/VenomPopup';
 import { mutateText } from '@/utils/mutateText';
 
 // Dynamic imports for client-side only components

@@ -69,6 +69,31 @@ export default function Home() {
     setPopupMessage(null);
   };
 
+  // Check for venom threshold crossing and show popup
+  useEffect(() => {
+    const crossedThreshold = checkThresholdCrossed(prevVenomLevel, venomLevel);
+    
+    if (crossedThreshold && !triggeredThresholds.has(crossedThreshold)) {
+      const message = getVenomMessage(crossedThreshold);
+      
+      if (message) {
+        setPopupMessage(message);
+        setShowPopup(true);
+        setTriggeredThresholds(prev => new Set([...prev, crossedThreshold]));
+      }
+    }
+    
+    // Reset triggered thresholds when venom resets to 0
+    if (venomLevel === 0 && prevVenomLevel > 0) {
+      setTriggeredThresholds(new Set());
+    }
+  }, [venomLevel, prevVenomLevel, triggeredThresholds]);
+
+  const handlePopupComplete = () => {
+    setShowPopup(false);
+    setPopupMessage(null);
+  };
+
   // Load snake name and stats from localStorage
   useEffect(() => {
     const savedName = localStorage.getItem('snakeName');
