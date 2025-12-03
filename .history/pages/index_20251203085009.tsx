@@ -1,0 +1,343 @@
+import React, { useState, useEffect, useRef } from 'react';
+import Head from 'next/head';
+import dynamic from 'next/dynamic';
+import { motion, AnimatePresence } from 'framer-motion';
+import MessageBubble from '@/components/MessageBubble';
+import VenomMeter from '@/components/VenomMeter';
+import SnakeCursor from '@/components/SnakeCursor';
+import BackgroundWebGL from '@/components/BackgroundWebGL';
+import DangerZone from '@/components/DangerZone';
+import VenomNavbar from '@/components/VenomNavbar';
+import { mutateText } from '@/utils/mutateText';
+
+// Dynamic imports for client-side only components
+const ToxinParticles = dynamic(() => import('@/components/ToxinParticles'), { 
+  ssr: false 
+});
+const AudioFeedback = dynamic(() => import('@/components/AudioFeedback'), { 
+  ssr: false 
+});
+
+interface Message {
+  id: number;
+  text: string;
+  isUser: boolean;
+}
+
+export default function Home() {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [inputValue, setInputValue] = useState('');
+  const [venomLevel, setVenomLevel] = useState(0);
+  const [prevVenomLevel, setPrevVenomLevel] = useState(0);
+  const [showFlash, setShowFlash] = useState(false);
+  const [venomIncreased, setVenomIncreased] = useState(false);
+  const [snakeName, setSnakeName] = useState('');
+  const [totalVenomExpelled, setTotalVenomExpelled] = useState(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Load snake name and stats from localStorage
+  useEffect(() => {
+    const savedName = localStorage.getItem('snakeName');
+    const savedVenomExpelled = localStorage.getItem('totalVenomExpelled');
+    if (savedName) {
+      setSnakeName(savedName);
+    }
+    if (savedVenomExpelled) {
+      setTotalVenomExpelled(parseInt(savedVenomExpelled));
+    }
+  }, []);
+
+  // Save snake name to localStorage
+  const handleSnakeNameChange = (name: string) => {
+    setSnakeName(name);
+    localStorage.setItem('snakeName', name);
+  };
+
+  // Save venom explosion count
+  useEffect(() => {
+    localStorage.setItem('totalVenomExpelled', totalVenomExpelled.toString());
+  }, [totalVenomExpelled]);
+
+  const handleSendMessage = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!inputValue.trim()) return;
+
+    // Mutate text based on current venom level
+    const finalMessage = mutateText(inputValue, venomLevel, messages.length);
+
+    const newMessage: Message = {
+      id: Date.now(),
+      text: finalMessage,
+      isUser: true,
+    };
+
+    setMessages((prev) => [...prev, newMessage]);
+    setInputValue('');
+
+    // Increase venom
+    setVenomIncreased(true);
+    setTimeout(() => setVenomIncreased(false), 100);
+    
+    setVenomLevel((prev) => {
+      setPrevVenomLevel(prev);
+      const nextLevel = prev + 10;
+      if (nextLevel >= 100) {
+        triggerVenomExplosion();
+        return 0;
+      }
+      return nextLevel;
+    });
+  };
+
+  const triggerVenomExplosion = () => {
+    setShowFlash(true);
+    setTotalVenomExpelled(prev => prev + 1);
+    setTimeout(() => setShowFlash(false), 500);
+
+    // Add system message
+    setTimeout(() => {
+        setMessages(prev => [...prev, {
+            id: Date.now(),
+            text: `⚠️ ${snakeName ? snakeName.toUpperCase() : 'VENOM'} OVERLOAD... SYSTEM RESET ⚠️`,
+            isUser: false
+        }]);
+    }, 600);
+  };
+
+  const handleLevelUp = (level: number, message: string) => {
+    // Just trigger the venom meter bubble - no chat messages
+    console.log(`Venom Level Up: ${level}% - ${message}`);
+  };
+
+  return (
+    <div className={`min-h-screen relative overflow-hidden bg-black selection:bg-venom-green selection:text-black font-mono ${
+      venomLevel > 90 ? 'animate-[screen-shake_0.5s_infinite]' : ''
+    }`}>
+      <Head>
+        <title>{snakeName ? `${snakeName} | Snake Chat` : 'Snake Chat — Venom Edition'}</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+
+      {/* Venom Navbar */}
+      <VenomNavbar 
+        venomLevel={venomLevel} 
+        onSnakeNameChange={handleSnakeNameChange} 
+        snakeName={snakeName}
+        messageCount={messages.length}
+        totalVenomExpelled={totalVenomExpelled}
+      />
+
+      {/* Background Layer */}
+      <BackgroundWebGL venomLevel={venomLevel} />
+
+      {/* UI Elements */}
+      <SnakeCursor />
+      <VenomMeter 
+        level={venomLevel} 
+        prevLevel={prevVenomLevel}
+        width={20}
+        height="65vh"
+        showLabels={true}
+        showPercentage={true}
+        showWarnings={true}
+        glowIntensity={2}
+        borderRadius="rounded-3xl"
+        backgroundColor="bg-black/95"
+        position="right"
+        onLevelUp={handleLevelUp}
+      />
+      <ToxinParticles venomLevel={venomLevel} />
+      <DangerZone venomLevel={venomLevel} />
+      <AudioFeedback venomLevel={venomLevel} onVenomIncrease={venomIncreased} />
+
+      {/* Venom Explosion Overlay */}
+      <AnimatePresence>
+        {showFlash && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.2 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center pointer-events-none"
+            style={{
+              background: 'radial-gradient(circle, #ff1439 0%, #39ff14 30%, #000000 70%)',
+              mixBlendMode: 'hard-light'
+            }}
+          >
+            <motion.div
+              className="text-[25rem] opacity-70 font-black tracking-tighter text-white select-none"
+              animate={{
+                scale: [1, 1.2, 0.8, 1],
+                rotate: [0, 5, -5, 0],
+              }}
+              transition={{ duration: 0.5 }}
+              style={{
+                textShadow: '0 0 50px #ff1439, 0 0 100px #39ff14',
+                filter: 'blur(2px)'
+              }}
+            >
+              💀🐍💀
+            </motion.div>
+            
+            {/* Explosion particles */}
+            {[...Array(20)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="absolute w-4 h-4 bg-toxin-red rounded-full"
+                initial={{
+                  x: 0,
+                  y: 0,
+                  scale: 0,
+                }}
+                animate={{
+                  x: (Math.random() - 0.5) * 800,
+                  y: (Math.random() - 0.5) * 600,
+                  scale: [0, 1, 0],
+                  rotate: Math.random() * 360,
+                }}
+                transition={{
+                  duration: 0.8,
+                  ease: "easeOut"
+                }}
+                style={{
+                  filter: 'drop-shadow(0 0 10px #ff1439)'
+                }}
+              />
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Chat Interface */}
+      <main className={`relative z-10 flex flex-col h-screen max-w-4xl mx-auto p-4 pt-24 transition-all duration-300 ${venomLevel > 50 ? 'animate-[glitch_0.2s_infinite]' : ''}`}>
+
+        {/* Chat Status Bar */}
+        <div className={`py-6 border-b mb-6 flex justify-between items-center backdrop-blur-lg rounded-2xl px-10 transition-all duration-300 shadow-2xl ${
+          venomLevel > 80 ? 'bg-toxin-red/10 border-toxin-red/30' :
+          venomLevel > 60 ? 'bg-death-yellow/10 border-death-yellow/30' :
+          venomLevel > 40 ? 'bg-poison-purple/10 border-poison-purple/30' :
+          'bg-black/40 border-venom-green/20'
+        }`}>
+          <div className="flex items-center space-x-3">
+            <motion.div
+              animate={{ 
+                scale: venomLevel > 70 ? [1, 1.3, 1] : [1, 1.1, 1],
+                rotate: [0, 8, -8, 0] 
+              }}
+              transition={{ duration: 1.2, repeat: Infinity }}
+              className="text-4xl"
+            >
+              🗨️
+            </motion.div>
+            <div>
+              <div className={`font-bold text-2xl tracking-wide ${
+                venomLevel > 80 ? 'text-toxin-red' :
+                venomLevel > 60 ? 'text-death-yellow' :
+                venomLevel > 40 ? 'text-poison-purple' :
+                'text-venom-green'
+              }`}>
+                {snakeName ? `${snakeName}'s Den` : 'Venom Chamber'}
+              </div>
+              <div className="text-lg opacity-70 font-mono mt-1">
+                {messages.length} message{messages.length !== 1 ? 's' : ''} exchanged
+              </div>
+            </div>
+          </div>
+          
+          <div className={`text-xl font-mono font-bold flex items-center space-x-6 ${
+            venomLevel > 80 ? 'text-toxin-red animate-pulse' :
+            venomLevel > 60 ? 'text-death-yellow' :
+            venomLevel > 40 ? 'text-poison-purple' :
+            'text-venom-green/80'
+          }`}>
+            <span className="tracking-wider">TOXICITY: {venomLevel}%</span>
+            {venomLevel > 75 && <span className="animate-bounce text-2xl">💀</span>}
+            {venomLevel > 90 && <span className="animate-pulse text-red-500 text-lg">⚠️</span>}
+          </div>
+        </div>
+
+        {/* Message List */}
+        <div className="flex-1 overflow-y-auto pr-4 scrollbar-thin scrollbar-thumb-venom-green scrollbar-track-black/20">
+          <AnimatePresence>
+            {messages.map((msg) => (
+              <MessageBubble key={msg.id} text={msg.text} isUser={msg.isUser} venomLevel={venomLevel} />
+            ))}
+          </AnimatePresence>
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input Area */}
+        <form onSubmit={handleSendMessage} className="mt-4 relative group">
+          <div className={`absolute -inset-1 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 ${
+            venomLevel > 80 ? 'bg-gradient-to-r from-toxin-red to-poison-purple animate-pulse-danger' :
+            venomLevel > 60 ? 'bg-gradient-to-r from-death-yellow to-toxin-red animate-pulse' :
+            venomLevel > 40 ? 'bg-gradient-to-r from-poison-purple to-venom-green animate-pulse' :
+            'bg-gradient-to-r from-venom-green to-blue-600'
+          } ${venomLevel > 0 ? 'animate-pulse' : ''}`}></div>
+          <input
+            type="text"
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            placeholder={
+              venomLevel > 80 ? "⚠️ LETHAL DOSE..." :
+              venomLevel > 60 ? "Inject toxins..." :
+              venomLevel > 40 ? "Drip poison..." :
+              "Type your venom here..."
+            }
+            className={`relative w-full bg-black rounded-lg px-4 py-3 text-white focus:outline-none transition-all ${
+              venomLevel > 80 ? 'border-2 border-toxin-red placeholder-red-400 focus:ring-2 focus:ring-toxin-red/50 animate-danger-glow' :
+              venomLevel > 60 ? 'border-2 border-death-yellow placeholder-yellow-400 focus:ring-2 focus:ring-death-yellow/50' :
+              venomLevel > 40 ? 'border-2 border-poison-purple placeholder-purple-400 focus:ring-2 focus:ring-poison-purple/50' :
+              'border border-venom-green/40 placeholder-gray-500 focus:ring-2 focus:ring-venom-green/50 focus:border-transparent'
+            }`}
+            style={{
+              transform: inputValue.length > 0 && venomLevel > 50 ? `rotate(${Math.sin(Date.now() * 0.01) * 0.5}deg)` : 'none',
+              filter: venomLevel > 70 ? 'blur(0.2px)' : 'none'
+            }}
+          />
+          {inputValue.length > 0 && (
+             <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
+                 {[...Array(venomLevel > 60 ? 5 : 3)].map((_, i) => (
+                    <motion.span
+                        key={i}
+                        className={`absolute text-xs font-bold ${
+                          venomLevel > 80 ? 'text-toxin-red' :
+                          venomLevel > 60 ? 'text-death-yellow' :
+                          venomLevel > 40 ? 'text-poison-purple' :
+                          'text-venom-green'
+                        }`}
+                        initial={{ opacity: 0, x: 0, y: 0 }}
+                        animate={{
+                            opacity: [0, 1, 0],
+                            x: [0, (Math.random() - 0.5) * (venomLevel > 70 ? 50 : 30)],
+                            y: [0, (Math.random() - 0.5) * (venomLevel > 70 ? 50 : 30)],
+                            rotate: [0, (Math.random() - 0.5) * (venomLevel > 70 ? 120 : 60)]
+                        }}
+                        transition={{
+                            repeat: Infinity,
+                            duration: venomLevel > 70 ? 0.3 : 0.5 + Math.random() * 0.5,
+                            delay: i * 0.1
+                        }}
+                        style={{
+                          filter: `drop-shadow(0 0 3px ${
+                            venomLevel > 80 ? '#ff1439' :
+                            venomLevel > 60 ? '#ffff14' :
+                            venomLevel > 40 ? '#8b14ff' :
+                            '#39ff14'
+                          })`
+                        }}
+                    >
+                        {venomLevel > 80 ? '💀' : venomLevel > 60 ? '⚠️' : 'sss'}
+                    </motion.span>
+                 ))}
+             </div>
+          )}
+        </form>
+      </main>
+    </div>
+  );
+}
