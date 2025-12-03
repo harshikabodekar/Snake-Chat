@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface VenomMeterProps {
   level: number;
@@ -30,9 +30,6 @@ export default function VenomMeter({
   prevLevel = 0,
   onLevelUp
 }: VenomMeterProps) {
-  const [showBubble, setShowBubble] = React.useState(false);
-  const [bubbleMessage, setBubbleMessage] = React.useState('');
-  const [bubbleKey, setBubbleKey] = React.useState(0);
   const getVenomColor = () => {
     if (level > 80) return '#ff1439'; // Critical red
     if (level > 60) return '#ffff14'; // Warning yellow  
@@ -83,25 +80,14 @@ export default function VenomMeter({
     return ["😇 PURE AS SNOW! For now...", "🌸 Innocent... but for how long?"];
   };
 
-  // Detect level up and show poison bubble
+  // Detect level up and trigger message
   React.useEffect(() => {
-    if (level > prevLevel && level > 0) {
+    if (level > prevLevel && level % 5 === 0 && onLevelUp) {
       const quotes = getVenomousQuote(level);
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      
-      // Show bubble message
-      setBubbleMessage(randomQuote);
-      setShowBubble(true);
-      setBubbleKey(prev => prev + 1);
-      
-      // Hide bubble after 3 seconds
-      const timer = setTimeout(() => {
-        setShowBubble(false);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
+      onLevelUp(level, randomQuote);
     }
-  }, [level, prevLevel]);
+  }, [level, prevLevel, onLevelUp]);
 
   return (
     <div className={`fixed ${positionClasses} top-1/2 -translate-y-1/2 ${getWidthClass()} border-4 ${borderRadius} overflow-hidden backdrop-blur-lg z-50 ${backgroundColor} ${
@@ -256,67 +242,24 @@ export default function VenomMeter({
         </div>
       )}
 
-      {/* Poison Bubble Message */}
-      <AnimatePresence>
-        {showBubble && (
-          <motion.div
-            key={bubbleKey}
-            initial={{ 
-              opacity: 0, 
-              scale: 0.1, 
-              x: position === 'left' ? 20 : -20,
-              y: 50,
-              rotate: -10
-            }}
-            animate={{ 
-              opacity: 1, 
-              scale: [1, 1.1, 1], 
-              x: position === 'left' ? 70 : -70,
-              y: 0,
-              rotate: 0
-            }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.3,
-              y: -50,
-              rotate: 10
-            }}
-            transition={{ 
-              duration: 0.8, 
-              type: "spring",
-              bounce: 0.6
-            }}
-            className={`absolute ${position === 'left' ? '-right-64' : '-left-64'} top-1/4 max-w-56 p-4 rounded-2xl text-sm font-bold backdrop-blur-lg z-50 ${
-              level > 80 ? 'bg-toxin-red/30 text-toxin-red border-2 border-toxin-red/50 shadow-lg shadow-toxin-red/30' :
-              level > 60 ? 'bg-death-yellow/30 text-death-yellow border-2 border-death-yellow/50 shadow-lg shadow-death-yellow/30' :
-              level > 40 ? 'bg-poison-purple/30 text-poison-purple border-2 border-poison-purple/50 shadow-lg shadow-poison-purple/30' :
-              'bg-venom-green/30 text-venom-green border-2 border-venom-green/50 shadow-lg shadow-venom-green/30'
-            } relative`}
-          >
-            {/* Bubble pointer */}
-            <div className={`absolute ${position === 'left' ? 'left-0 -ml-2' : 'right-0 -mr-2'} top-1/2 -translate-y-1/2 w-0 h-0 ${
-              level > 80 ? 'border-l-8 border-l-toxin-red/50 border-y-8 border-y-transparent' :
-              level > 60 ? 'border-l-8 border-l-death-yellow/50 border-y-8 border-y-transparent' :
-              level > 40 ? 'border-l-8 border-l-poison-purple/50 border-y-8 border-y-transparent' :
-              'border-l-8 border-l-venom-green/50 border-y-8 border-y-transparent'
-            } ${position === 'left' ? 'rotate-180' : ''}`}></div>
-            
-            <div className="flex items-center space-x-3">
-              <motion.span 
-                className="text-2xl"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                🧪
-              </motion.span>
-              <div>
-                <div className="font-bold text-sm opacity-90 tracking-wide">VENOM LEVEL {level}%</div>
-                <div className="mt-1 text-xs leading-relaxed">{bubbleMessage}</div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Quirky Level Quote Display */}
+      {level % 5 === 0 && level > 0 && (
+        <motion.div
+          key={level}
+          initial={{ opacity: 0, scale: 0.5, x: position === 'left' ? 50 : -50 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.5 }}
+          transition={{ duration: 0.5, type: "spring" }}
+          className={`absolute ${position === 'left' ? '-right-48' : '-left-48'} top-16 max-w-40 p-2 rounded-lg text-xs font-bold backdrop-blur-sm ${
+            level > 80 ? 'bg-toxin-red/20 text-toxin-red border border-toxin-red/30' :
+            level > 60 ? 'bg-death-yellow/20 text-death-yellow border border-death-yellow/30' :
+            level > 40 ? 'bg-poison-purple/20 text-poison-purple border border-poison-purple/30' :
+            'bg-venom-green/20 text-venom-green border border-venom-green/30'
+          }`}
+        >
+          {getVenomousQuote(level)[0]}
+        </motion.div>
+      )}
     </div>
   );
 }

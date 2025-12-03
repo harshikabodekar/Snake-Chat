@@ -110,8 +110,14 @@ export default function Home() {
   };
 
   const handleLevelUp = (level: number, message: string) => {
-    // Just trigger the venom meter bubble - no chat messages
-    console.log(`Venom Level Up: ${level}% - ${message}`);
+    // Add quirky venom message to chat
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        text: `🐍 VENOM LEVEL ${level}% 🐍\n${message}`,
+        isUser: false
+      }]);
+    }, 300);
   };
 
   return (

@@ -28,7 +28,6 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [venomLevel, setVenomLevel] = useState(0);
-  const [prevVenomLevel, setPrevVenomLevel] = useState(0);
   const [showFlash, setShowFlash] = useState(false);
   const [venomIncreased, setVenomIncreased] = useState(false);
   const [snakeName, setSnakeName] = useState('');
@@ -84,7 +83,6 @@ export default function Home() {
     setTimeout(() => setVenomIncreased(false), 100);
     
     setVenomLevel((prev) => {
-      setPrevVenomLevel(prev);
       const nextLevel = prev + 10;
       if (nextLevel >= 100) {
         triggerVenomExplosion();
@@ -107,11 +105,6 @@ export default function Home() {
             isUser: false
         }]);
     }, 600);
-  };
-
-  const handleLevelUp = (level: number, message: string) => {
-    // Just trigger the venom meter bubble - no chat messages
-    console.log(`Venom Level Up: ${level}% - ${message}`);
   };
 
   return (
@@ -139,17 +132,14 @@ export default function Home() {
       <SnakeCursor />
       <VenomMeter 
         level={venomLevel} 
-        prevLevel={prevVenomLevel}
-        width={20}
-        height="65vh"
+        width={16}
+        height="80vh"
         showLabels={true}
         showPercentage={true}
         showWarnings={true}
-        glowIntensity={2}
+        glowIntensity={1.5}
         borderRadius="rounded-3xl"
-        backgroundColor="bg-black/95"
-        position="right"
-        onLevelUp={handleLevelUp}
+        backgroundColor="bg-black/90"
       />
       <ToxinParticles venomLevel={venomLevel} />
       <DangerZone venomLevel={venomLevel} />

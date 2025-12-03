@@ -85,7 +85,7 @@ export default function VenomMeter({
 
   // Detect level up and show poison bubble
   React.useEffect(() => {
-    if (level > prevLevel && level > 0) {
+    if (level > prevLevel && level % 5 === 0 && level > 0) {
       const quotes = getVenomousQuote(level);
       const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
       
@@ -94,10 +94,10 @@ export default function VenomMeter({
       setShowBubble(true);
       setBubbleKey(prev => prev + 1);
       
-      // Hide bubble after 3 seconds
+      // Hide bubble after 4 seconds
       const timer = setTimeout(() => {
         setShowBubble(false);
-      }, 3000);
+      }, 4000);
       
       return () => clearTimeout(timer);
     }
@@ -263,30 +263,27 @@ export default function VenomMeter({
             key={bubbleKey}
             initial={{ 
               opacity: 0, 
-              scale: 0.1, 
-              x: position === 'left' ? 20 : -20,
-              y: 50,
-              rotate: -10
+              scale: 0.3, 
+              x: position === 'left' ? 40 : -40,
+              y: 20
             }}
             animate={{ 
               opacity: 1, 
-              scale: [1, 1.1, 1], 
-              x: position === 'left' ? 70 : -70,
-              y: 0,
-              rotate: 0
+              scale: 1, 
+              x: position === 'left' ? 60 : -60,
+              y: 0
             }}
             exit={{ 
               opacity: 0, 
-              scale: 0.3,
-              y: -50,
-              rotate: 10
+              scale: 0.2,
+              y: -30
             }}
             transition={{ 
-              duration: 0.8, 
+              duration: 0.6, 
               type: "spring",
-              bounce: 0.6
+              bounce: 0.4
             }}
-            className={`absolute ${position === 'left' ? '-right-64' : '-left-64'} top-1/4 max-w-56 p-4 rounded-2xl text-sm font-bold backdrop-blur-lg z-50 ${
+            className={`absolute ${position === 'left' ? '-right-56' : '-left-56'} top-1/3 max-w-48 p-3 rounded-2xl text-xs font-bold backdrop-blur-lg z-50 ${
               level > 80 ? 'bg-toxin-red/30 text-toxin-red border-2 border-toxin-red/50 shadow-lg shadow-toxin-red/30' :
               level > 60 ? 'bg-death-yellow/30 text-death-yellow border-2 border-death-yellow/50 shadow-lg shadow-death-yellow/30' :
               level > 40 ? 'bg-poison-purple/30 text-poison-purple border-2 border-poison-purple/50 shadow-lg shadow-poison-purple/30' :
@@ -301,17 +298,11 @@ export default function VenomMeter({
               'border-l-8 border-l-venom-green/50 border-y-8 border-y-transparent'
             } ${position === 'left' ? 'rotate-180' : ''}`}></div>
             
-            <div className="flex items-center space-x-3">
-              <motion.span 
-                className="text-2xl"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                🧪
-              </motion.span>
+            <div className="flex items-center space-x-2">
+              <span className="text-lg">🧪</span>
               <div>
-                <div className="font-bold text-sm opacity-90 tracking-wide">VENOM LEVEL {level}%</div>
-                <div className="mt-1 text-xs leading-relaxed">{bubbleMessage}</div>
+                <div className="font-bold text-xs opacity-80">VENOM LEVEL {level}%</div>
+                <div className="mt-1">{bubbleMessage}</div>
               </div>
             </div>
           </motion.div>

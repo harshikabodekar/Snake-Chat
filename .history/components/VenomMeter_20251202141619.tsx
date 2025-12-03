@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 interface VenomMeterProps {
   level: number;
@@ -12,8 +12,6 @@ interface VenomMeterProps {
   glowIntensity?: number;
   borderRadius?: string;
   backgroundColor?: string;
-  prevLevel?: number;
-  onLevelUp?: (level: number, message: string) => void;
 }
 
 export default function VenomMeter({ 
@@ -26,13 +24,8 @@ export default function VenomMeter({
   showWarnings = true,
   glowIntensity = 1,
   borderRadius = 'rounded-2xl',
-  backgroundColor = 'bg-black/80',
-  prevLevel = 0,
-  onLevelUp
+  backgroundColor = 'bg-black/80'
 }: VenomMeterProps) {
-  const [showBubble, setShowBubble] = React.useState(false);
-  const [bubbleMessage, setBubbleMessage] = React.useState('');
-  const [bubbleKey, setBubbleKey] = React.useState(0);
   const getVenomColor = () => {
     if (level > 80) return '#ff1439'; // Critical red
     if (level > 60) return '#ffff14'; // Warning yellow  
@@ -59,49 +52,6 @@ export default function VenomMeter({
     if (width >= 10) return 'w-10';
     return 'w-8';
   };
-
-  const getVenomousQuote = (level: number) => {
-    if (level >= 95) return ["🐍 APEX PREDATOR! Death incarnate!", "💀 You've become the void itself!"];
-    if (level >= 90) return ["⚠️ LETHAL INJECTION! One bite = game over!", "🩸 Your venom could kill a dragon!"];
-    if (level >= 85) return ["💉 PURE TOXICITY! Handle with extreme care!", "⚡ Lightning-fast death dealer!"];
-    if (level >= 80) return ["🔥 CRITICAL MASS! Danger to all life forms!", "💀 Walking weapon of mass destruction!"];
-    if (level >= 75) return ["☠️ HIGHLY VENOMOUS! Approach with caution!", "🐍 Serpent of nightmares awakened!"];
-    if (level >= 70) return ["⚠️ DANGEROUS LEVELS! Toxic aura detected!", "🌪️ Whirlwind of poison brewing!"];
-    if (level >= 65) return ["🧪 CHEMICAL WARFARE! Beware the bite!", "⚗️ Brewing a deadly cocktail!"];
-    if (level >= 60) return ["☣️ TOXIC TERRITORY! Enter at your own risk!", "🐍 Venom glands fully charged!"];
-    if (level >= 55) return ["⚡ CHARGED WITH POISON! Electrifying danger!", "💚 Green with deadly envy!"];
-    if (level >= 50) return ["🌿 NATURE'S ASSASSIN! Silent but deadly!", "🎭 Mastering the art of poison!"];
-    if (level >= 45) return ["🔬 EXPERIMENTAL TOXINS! Mad scientist vibes!", "💉 Injection of pure malice!"];
-    if (level >= 40) return ["☣️ MODERATE TOXICITY! Getting interesting...", "🐍 Fangs are sharpening nicely!"];
-    if (level >= 35) return ["🌱 GROWING STRONGER! Poison ivy mentality!", "⚗️ Brewing something wicked!"];
-    if (level >= 30) return ["🧬 DNA MUTATING! Becoming more venomous!", "🐍 Scales getting sharper!"];
-    if (level >= 25) return ["💚 VENOM RISING! Feel the power growing!", "⚡ Electric personality developing!"];
-    if (level >= 20) return ["🌿 FIRST DROPS! Poison starts to flow!", "🐍 Baby fangs are coming in!"];
-    if (level >= 15) return ["💧 DROPLETS OF DOOM! Venom glands activating!", "🌱 Seedling of destruction planted!"];
-    if (level >= 10) return ["⚡ SPARK OF MALICE! Something wicked brewing!", "💚 Green tinge detected!"];
-    if (level >= 5) return ["🌿 FIRST TASTE! Bitter beginnings...", "🐍 Serpentine thoughts emerging!"];
-    return ["😇 PURE AS SNOW! For now...", "🌸 Innocent... but for how long?"];
-  };
-
-  // Detect level up and show poison bubble
-  React.useEffect(() => {
-    if (level > prevLevel && level > 0) {
-      const quotes = getVenomousQuote(level);
-      const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-      
-      // Show bubble message
-      setBubbleMessage(randomQuote);
-      setShowBubble(true);
-      setBubbleKey(prev => prev + 1);
-      
-      // Hide bubble after 3 seconds
-      const timer = setTimeout(() => {
-        setShowBubble(false);
-      }, 3000);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [level, prevLevel]);
 
   return (
     <div className={`fixed ${positionClasses} top-1/2 -translate-y-1/2 ${getWidthClass()} border-4 ${borderRadius} overflow-hidden backdrop-blur-lg z-50 ${backgroundColor} ${
@@ -255,68 +205,6 @@ export default function VenomMeter({
           ☣️ TOXIC
         </div>
       )}
-
-      {/* Poison Bubble Message */}
-      <AnimatePresence>
-        {showBubble && (
-          <motion.div
-            key={bubbleKey}
-            initial={{ 
-              opacity: 0, 
-              scale: 0.1, 
-              x: position === 'left' ? 20 : -20,
-              y: 50,
-              rotate: -10
-            }}
-            animate={{ 
-              opacity: 1, 
-              scale: [1, 1.1, 1], 
-              x: position === 'left' ? 70 : -70,
-              y: 0,
-              rotate: 0
-            }}
-            exit={{ 
-              opacity: 0, 
-              scale: 0.3,
-              y: -50,
-              rotate: 10
-            }}
-            transition={{ 
-              duration: 0.8, 
-              type: "spring",
-              bounce: 0.6
-            }}
-            className={`absolute ${position === 'left' ? '-right-64' : '-left-64'} top-1/4 max-w-56 p-4 rounded-2xl text-sm font-bold backdrop-blur-lg z-50 ${
-              level > 80 ? 'bg-toxin-red/30 text-toxin-red border-2 border-toxin-red/50 shadow-lg shadow-toxin-red/30' :
-              level > 60 ? 'bg-death-yellow/30 text-death-yellow border-2 border-death-yellow/50 shadow-lg shadow-death-yellow/30' :
-              level > 40 ? 'bg-poison-purple/30 text-poison-purple border-2 border-poison-purple/50 shadow-lg shadow-poison-purple/30' :
-              'bg-venom-green/30 text-venom-green border-2 border-venom-green/50 shadow-lg shadow-venom-green/30'
-            } relative`}
-          >
-            {/* Bubble pointer */}
-            <div className={`absolute ${position === 'left' ? 'left-0 -ml-2' : 'right-0 -mr-2'} top-1/2 -translate-y-1/2 w-0 h-0 ${
-              level > 80 ? 'border-l-8 border-l-toxin-red/50 border-y-8 border-y-transparent' :
-              level > 60 ? 'border-l-8 border-l-death-yellow/50 border-y-8 border-y-transparent' :
-              level > 40 ? 'border-l-8 border-l-poison-purple/50 border-y-8 border-y-transparent' :
-              'border-l-8 border-l-venom-green/50 border-y-8 border-y-transparent'
-            } ${position === 'left' ? 'rotate-180' : ''}`}></div>
-            
-            <div className="flex items-center space-x-3">
-              <motion.span 
-                className="text-2xl"
-                animate={{ rotate: [0, 10, -10, 0] }}
-                transition={{ duration: 2, repeat: Infinity }}
-              >
-                🧪
-              </motion.span>
-              <div>
-                <div className="font-bold text-sm opacity-90 tracking-wide">VENOM LEVEL {level}%</div>
-                <div className="mt-1 text-xs leading-relaxed">{bubbleMessage}</div>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
